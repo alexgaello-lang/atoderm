@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atoderm AD Intensive — сообщения врачам</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1d2330;
+    --muted: #677085;
+    --line: #e2e5eb;
+    --accent: #1f5fbf;
+    --accent-soft: #e8f0fc;
+    --ph: #fff1c7;
+    --ph-text: #7a5a00;
+    --ok: #1e8a4c;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  .top .wrap { padding-top: 14px; padding-bottom: 12px; }
+  h1 { font-size: 18px; margin: 0 0 10px; }
+  .fields { display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 10px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  input, select {
+    width: 100%; padding: 9px 11px; font: inherit;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text);
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  nav.tabs { display: flex; gap: 6px; margin-top: 10px; overflow-x: auto; }
+  nav.tabs a {
+    white-space: nowrap; text-decoration: none; color: var(--accent);
+    background: var(--accent-soft); padding: 5px 11px; border-radius: 999px; font-size: 13px;
+  }
+  main { padding: 20px 0 60px; }
+  h2 { font-size: 20px; margin: 28px 0 4px; scroll-margin-top: 170px; }
+  h3 { font-size: 15px; margin: 22px 0 8px; color: var(--muted); font-weight: 600; }
+  .lead { color: var(--muted); margin: 0 0 8px; }
+  .msg {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; margin: 10px 0;
+  }
+  .msg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .msg-title { font-weight: 600; font-size: 14px; }
+  .msg-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .text {
+    white-space: pre-wrap; word-break: break-word; outline: none;
+    border-radius: 8px; padding: 2px 4px; margin: 0 -4px;
+  }
+  .text:focus { background: #fafbfc; box-shadow: inset 0 0 0 1px var(--line); }
+  .ph { background: var(--ph); color: var(--ph-text); border-radius: 4px; padding: 0 2px; }
+  .nm { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 0 2px; }
+  button {
+    font: inherit; font-size: 13px; cursor: pointer; border-radius: 8px;
+    padding: 6px 12px; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  }
+  button.ghost { background: #fff; color: var(--muted); border-color: var(--line); }
+  button.done { background: var(--ok); border-color: var(--ok); }
+  .edited-note { font-size: 12px; color: var(--muted); margin-top: 6px; display: none; }
+  .msg.edited .edited-note { display: block; }
+  .msg:not(.edited) .reset { display: none; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; background: #fafbfc; }
+  td.pts { font-weight: 700; color: var(--accent); white-space: nowrap; }
+  td a { color: var(--accent); }
+  .tips { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+  .tips li { margin: 3px 0; }
+  .note { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  @media (max-width: 640px) {
+    .fields { grid-template-columns: 1fr 1fr; }
+    .fields .f-name { grid-column: 1 / -1; }
+    table, thead, tbody, tr, th, td { display: block; }
+    thead { display: none; }
+    tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+    td { border: 0; padding: 2px 12px; }
+    td::before { content: attr(data-l) ": "; color: var(--muted); font-size: 12px; }
+    h2 { scroll-margin-top: 230px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>Atoderm AD Intensive — сообщения врачам о материалах NAOS Про</h1>
+    <div class="fields">
+      <div class="f-name">
+        <label for="fio">ФИО врача</label>
+        <input id="fio" placeholder="Например: Иванова Мария Петровна" autocomplete="off">
+      </div>
+      <div>
+        <label for="addr">Обращение в сообщениях</label>
+        <input id="addr" placeholder="Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="gender">Пишу от лица</label>
+        <select id="gender">
+          <option value="f">женщины</option>
+          <option value="m">мужчины</option>
+        </select>
+      </div>
+    </div>
+    <nav class="tabs">
+      <a href="#materials">Материалы и баллы</a>
+      <a href="#r1">1. Общие</a>
+      <a href="#r2">2. По материалам</a>
+      <a href="#r3">3. По ситуации</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 id="materials">Материалы и баллы</h2>
+  <p class="lead">Все материалы на платформе отмечены тегом Atoderm AD. За изучение начисляются повышенные баллы.</p>
+  <table>
+    <thead><tr><th>Материал</th><th>Для чего</th><th>Время</th><th>Баллы</th></tr></thead>
+    <tbody>
+      <tr><td data-l="Материал"><a href="https://pro.naos.ru/courses/171" target="_blank" rel="noopener">Продвинутый курс по атопическому дерматиту</a></td><td data-l="Для чего">Изучить тему детально; выходит с 6 ноября по 11 декабря</td><td data-l="Время">до 30 мин на лекцию, около 4 ч весь курс</td><td class="pts" data-l="Баллы">1100</td></tr>
+      <tr><td data-l="Материал"><a href="https://pro.naos.ru/videos?tag=201" target="_blank" rel="noopener">Видеолекции</a></td><td data-l="Для чего">Фокусные вопросы: биологический подход к уходу, кожный барьер, возражения в медицине</td><td data-l="Время">20–30 мин</td><td class="pts" data-l="Баллы">180</td></tr>
+      <tr><td data-l="Материал"><a href="https://pro.naos.ru/longreads/?tag=201" target="_blank" rel="noopener">Интерактивные статьи</a></td><td data-l="Для чего">Быстро разобраться: новая формула, состав, действие</td><td data-l="Время">5–20 мин каждая</td><td class="pts" data-l="Баллы">140 за каждую</td></tr>
+      <tr><td data-l="Материал"><a href="https://pro.naos.ru/quizzes?tag=201" target="_blank" rel="noopener">Тесты и «вопрос-ответ с пациентом»</a></td><td data-l="Для чего">Закрепить знания о продукте и ответы на вопросы пациентов</td><td data-l="Время">до 5 мин</td><td class="pts" data-l="Баллы">70 за каждый</td></tr>
+      <tr><td data-l="Материал"><a href="https://pro.naos.ru/posts?tag=201" target="_blank" rel="noopener">Памятка для пациентов</a></td><td data-l="Для чего">Использовать на приеме</td><td data-l="Время">5 мин</td><td class="pts" data-l="Баллы">20</td></tr>
+    </tbody>
+  </table>
+  <ul class="tips">
+    <li>Введите ФИО врача сверху — обращение подставится во все сообщения.</li>
+    <li>Желтым отмечены места, которые нужно заполнить. Текст можно править прямо в карточке перед копированием.</li>
+    <li>Одно сообщение — одна просьба. Занятому врачу лучше предложить материал на 5 минут.</li>
+  </ul>
+
+  <div id="content"></div>
+</main>
+
+<script>
+const L = {
+  long: "https://pro.naos.ru/longreads/?tag=201",
+  quiz: "https://pro.naos.ru/quizzes?tag=201",
+  memo: "https://pro.naos.ru/posts?tag=201",
+  video: "https://pro.naos.ru/videos?tag=201",
+  course: "https://pro.naos.ru/courses/171"
+};
+
+// {N} — обращение, {RAD} — рад/рада
+const RUBRICS = [
+  {
+    id: "r1", title: "1. Общие сообщения",
+    lead: "Для первого касания: рассказывают о подборке целиком и помогают врачу выбрать формат.",
+    groups: [{ items: [
+      { t: "1.1. Короткий анонс",
+        x: `{N}, добрый день! На NAOS Про вышли материалы о новинке — бальзаме Atoderm AD Intensive. Есть форматы на 5 минут и подробный курс по атопическому дерматиту, а за изучение сейчас начисляются повышенные баллы. Начать можно со статей: ${L.long} — все остальное найдете по тегу Atoderm AD.` },
+      { t: "1.2. Полный анонс со всеми форматами",
+        x: `{N}, здравствуйте! На платформе NAOS Про собрали материалы о новом бальзаме Atoderm AD Intensive. Их можно изучать в удобном темпе, а баллы за них сейчас повышенные:
+
+— интерактивные статьи о новой формуле, составе и действии: 5–20 минут, 140 баллов за каждую — ${L.long}
+
+— тесты по продукту и по частым вопросам пациентов: до 5 минут, 70 баллов за каждый — ${L.quiz}
+
+— памятка для пациентов, которую удобно использовать на приеме: 5 минут, 20 баллов — ${L.memo}
+
+— видеолекции о биологическом подходе к уходу, кожном барьере и работе с возражениями: 20–30 минут, 180 баллов за просмотр — ${L.video}
+
+— продвинутый курс по атопическому дерматиту (выходит с 6 ноября по 11 декабря): около 4 часов, 1100 баллов — ${L.course}
+
+Все материалы отмечены тегом Atoderm AD. Буду {RAD} вашему мнению!` },
+      { t: "1.3. Для занятого врача",
+        x: `{N}, знаю, что времени немного, поэтому коротко. На NAOS Про есть материалы о бальзаме Atoderm AD Intensive, на которые уйдет не больше 5 минут: тесты по продукту (70 баллов за каждый) и памятка для пациентов (20 баллов). Это самый быстрый способ познакомиться с новинкой и сразу получить баллы: ${L.quiz}` },
+      { t: "1.4. С акцентом на баллы",
+        x: `{N}, добрый день! За материалы о бальзаме Atoderm AD Intensive на NAOS Про сейчас начисляются повышенные баллы: статья — 140, тест — 70, видеолекция — 180, памятка для пациентов — 20, а продвинутый курс по атопическому дерматиту — 1100. Можно выбрать формат под свободное время, все материалы отмечены тегом Atoderm AD. Рекомендую начать отсюда: [ссылка]` },
+      { t: "1.5. С привязкой к практике врача",
+        x: `{N}, здравствуйте! Помню, что к вам часто обращаются [пациенты с атопическим дерматитом / родители детей с атопичной кожей]. На NAOS Про вышли материалы о новом бальзаме Atoderm AD Intensive — от коротких статей и тестов до подробного курса. Вам, мне кажется, будет особенно полезен [материал]: [чем именно]. За него сейчас начисляется [число] баллов: [ссылка]` }
+    ]}]
+  },
+  {
+    id: "r2", title: "2. Сообщения по материалам",
+    lead: "Когда вы знаете, что интересно врачу, или хотите предложить следующий шаг после общего анонса.",
+    groups: [
+      { title: "2.1. Интерактивные статьи — 140 баллов за каждую", items: [
+        { t: "Вариант А — вся серия",
+          x: `{N}, добрый день! Если хочется быстро разобраться в новом бальзаме Atoderm AD Intensive, рекомендую серию интерактивных статей на NAOS Про. В них разобраны особенности новой формулы, состав и действие средства. Одна статья занимает 5–20 минут, за каждую начисляется 140 баллов: ${L.long}` },
+        { t: "Вариант Б — одна статья",
+          x: `{N}, на NAOS Про вышла статья «[название]» о бальзаме Atoderm AD Intensive. За [время] минут она поможет разобраться в [тема статьи], а за прочтение начисляется 140 баллов. Другие статьи серии тоже отмечены тегом Atoderm AD: ${L.long}` }
+      ]},
+      { title: "2.2. Тесты по продукту и «вопрос-ответ с пациентом» — 70 баллов за каждый", items: [
+        { t: "Вариант А — тесты по продукту",
+          x: `{N}, предлагаю небольшую проверку знаний: на NAOS Про вышли тесты по бальзаму Atoderm AD Intensive. Каждый занимает до 5 минут и приносит 70 баллов — удобный способ закрепить информацию о новинке: ${L.quiz}` },
+        { t: "Вариант Б — вопросы пациентов",
+          x: `{N}, добрый день! На NAOS Про есть формат «вопрос-ответ с пациентом»: короткие квизы по основным вопросам, которые пациенты задают об уходе с Atoderm AD Intensive. Помогает заранее подготовить краткие ответы для приема. До 5 минут и 70 баллов за каждый: ${L.quiz}` },
+        { t: "Вариант В — после статей",
+          x: `{N}, спасибо, что нашли время на статьи о Atoderm AD Intensive! Чтобы закрепить информацию, можно пройти короткие тесты по продукту — до 5 минут и еще 70 баллов за каждый: ${L.quiz}` }
+      ]},
+      { title: "2.3. Памятка для пациентов — 20 баллов", items: [
+        { t: "Вариант А — инструмент для приема",
+          x: `{N}, на NAOS Про появилась памятка для пациентов о бальзаме Atoderm AD Intensive. Ее удобно использовать на приеме, чтобы пациенту [или родителям] было проще разобраться в уходе. Знакомство займет 5 минут, за него начисляется 20 баллов: ${L.memo}` },
+        { t: "Вариант Б — очень коротко",
+          x: `{N}, полезная мелочь для приема: памятка для пациентов по бальзаму Atoderm AD Intensive. 5 минут, 20 баллов — и готовый материал всегда под рукой: ${L.memo}` }
+      ]},
+      { title: "2.4. Видеолекции — 180 баллов за просмотр", items: [
+        { t: "Вариант А — все лекции",
+          x: `{N}, добрый день! На NAOS Про вышли видеолекции на темы, важные для практики: биологический подход к уходу, новые представления о кожном барьере и работа с возражениями в медицине. Каждая длится 20–30 минут, за просмотр начисляется 180 баллов: ${L.video}` },
+        { t: "Вариант Б — одна лекция",
+          x: `{N}, рекомендую лекцию «[название]» на NAOS Про — в ней разбирается [тема]. Это 20–30 минут, ее удобно посмотреть в свободное время. За просмотр начисляется 180 баллов: ${L.video}` },
+        { t: "Вариант В — возражения пациентов",
+          x: `{N}, вы наверняка сталкивались с пациентами, которые сомневаются в назначениях. На NAOS Про есть лекция о работе с возражениями в медицине — 20–30 минут и 180 баллов за просмотр: ${L.video}` }
+      ]},
+      { title: "2.5. Продвинутый курс по атопическому дерматиту — 1100 баллов", items: [
+        { t: "Вариант А — анонс курса",
+          x: `{N}, здравствуйте! С 6 ноября на NAOS Про стартует продвинутый курс по атопическому дерматиту. Лекции выходят поэтапно до 11 декабря, каждая — до 30 минут, весь курс — около 4 часов. За прохождение начисляется 1100 баллов — больше всего среди материалов по Atoderm AD. Курс здесь: ${L.course}` },
+        { t: "Вариант Б — для тех, кто хочет глубже",
+          x: `{N}, если хочется подробнее разобраться в атопическом дерматите, рекомендую продвинутый курс на NAOS Про. Он выходит частями, поэтому его удобно проходить по одной лекции до 30 минут, без большой нагрузки. Все лекции выйдут до 11 декабря, за курс начисляется 1100 баллов: ${L.course}` }
+      ]}
+    ]
+  },
+  {
+    id: "r3", title: "3. Сообщения по ситуации",
+    lead: "Для повторных касаний: после визита, для напоминания и по датам выхода курса.",
+    groups: [{ items: [
+      { t: "3.1. После визита",
+        x: `{N}, спасибо за встречу сегодня! Как договаривались, отправляю ссылку на материалы о бальзаме Atoderm AD Intensive на NAOS Про: [ссылка]. Если будет пара минут, начните с [материал] — это [время] и [число] баллов. Все материалы по новинке отмечены тегом Atoderm AD.` },
+      { t: "3.2. Напоминание, если врач еще не открыл материалы",
+        x: `{N}, добрый день! Напомню о материалах по бальзаму Atoderm AD Intensive на NAOS Про — за них по-прежнему начисляются повышенные баллы. Если удобнее начать с короткого формата, тест по продукту займет до 5 минут и принесет 70 баллов: ${L.quiz}` },
+      { t: "3.3. Следующий шаг после первого материала",
+        note: "Логичная цепочка: статьи → тесты → памятка для приема → видеолекции → курс.",
+        x: `{N}, спасибо, что нашли время на [материал] о Atoderm AD Intensive! Если тема откликнулась, следующим шагом рекомендую [материал]: это [время] и еще [число] баллов. Ссылка: [ссылка]` },
+      { t: "3.4. Старт курса (6 ноября)",
+        x: `{N}, доброе утро! Сегодня на NAOS Про стартовал продвинутый курс по атопическому дерматиту. Первая лекция уже доступна и займет до 30 минут, следующие будут выходить до 11 декабря. За весь курс начисляется 1100 баллов: ${L.course}` },
+      { t: "3.5. Новая лекция курса",
+        x: `{N}, в курсе по атопическому дерматиту на NAOS Про вышла новая лекция — «[название]». Она займет до 30 минут, посмотреть можно в любое удобное время. Напомню, что за прохождение курса начисляется 1100 баллов: ${L.course}` },
+      { t: "3.6. Финал курса (ближе к 11 декабря)",
+        x: `{N}, 11 декабря выходит заключительная лекция курса по атопическому дерматиту на NAOS Про. Если часть лекций пропущена, сейчас удобный момент наверстать: весь курс занимает около 4 часов, за прохождение начисляется 1100 баллов: ${L.course}` },
+      { t: "3.7. Очень короткое напоминание в мессенджере",
+        x: `{N}, 5 минут — и 70 баллов за тест по новинке Atoderm AD Intensive на NAOS Про: ${L.quiz}` }
+    ]}]
+  }
+];
+
+const $ = s => document.querySelector(s);
+const fio = $("#fio"), addr = $("#addr"), gender = $("#gender");
+let addrTouched = false;
+
+function cap(w) { return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w; }
+function addrFromFio(v) {
+  const p = v.trim().split(/\s+/).filter(Boolean).map(w => w.split("-").map(cap).join("-"));
+  if (p.length >= 3) return p.slice(1, 3).join(" ");
+  return p.join(" ");
+}
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function render(tpl) {
+  const name = addr.value.trim();
+  const rad = gender.value === "m" ? "рад" : "рада";
+  let h = esc(tpl).replace(/\{RAD\}/g, rad);
+  h = h.replace(/\[[^\]]+\]/g, m => `<span class="ph">${m}</span>`);
+  h = h.replace(/\{N\}/g, name ? `<span class="nm">${esc(name)}</span>` : `<span class="ph">[Имя Отчество]</span>`);
+  return h;
+}
+
+const cards = [];
+function build() {
+  const root = $("#content");
+  RUBRICS.forEach(r => {
+    const h2 = document.createElement("h2"); h2.id = r.id; h2.textContent = r.title; root.appendChild(h2);
+    const lead = document.createElement("p"); lead.className = "lead"; lead.textContent = r.lead; root.appendChild(lead);
+    r.groups.forEach(g => {
+      if (g.title) { const h3 = document.createElement("h3"); h3.textContent = g.title; root.appendChild(h3); }
+      g.items.forEach(it => {
+        const card = document.createElement("div"); card.className = "msg";
+        card.innerHTML = `
+          <div class="msg-head">
+            <div class="msg-title">${esc(it.t)}</div>
+            <div class="msg-actions">
+              <button class="ghost reset" type="button">Сбросить</button>
+              <button class="copy" type="button">Скопировать</button>
+            </div>
+          </div>
+          <div class="text" contenteditable="true" spellcheck="false"></div>
+          ${it.note ? `<p class="note">${esc(it.note)}</p>` : ""}
+          <div class="edited-note">Текст изменен вручную — обращение в нем больше не обновляется автоматически.</div>`;
+        const text = card.querySelector(".text");
+        const c = { card, text, tpl: it.x, edited: false };
+        text.addEventListener("input", () => { c.edited = true; card.classList.add("edited"); });
+        card.querySelector(".reset").addEventListener("click", () => { c.edited = false; card.classList.remove("edited"); text.innerHTML = render(c.tpl); });
+        const btn = card.querySelector(".copy");
+        btn.addEventListener("click", async () => {
+          const ok = await copy(text.innerText.trim());
+          btn.textContent = ok ? "Скопировано" : "Не удалось";
+          btn.classList.toggle("done", ok);
+          setTimeout(() => { btn.textContent = "Скопировать"; btn.classList.remove("done"); }, 1600);
+        });
+        cards.push(c);
+        root.appendChild(card);
+      });
+    });
+  });
+  refresh();
+}
+
+function refresh() { cards.forEach(c => { if (!c.edited) c.text.innerHTML = render(c.tpl); }); }
+
+async function copy(s) {
+  try { await navigator.clipboard.writeText(s); return true; } catch (e) {
+    const ta = document.createElement("textarea"); ta.value = s;
+    ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
+    ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (_) {}
+    ta.remove(); return ok;
+  }
+}
+
+fio.addEventListener("input", () => { if (!addrTouched) addr.value = addrFromFio(fio.value); refresh(); });
+addr.addEventListener("input", () => { addrTouched = addr.value.trim() !== ""; refresh(); });
+gender.addEventListener("change", refresh);
+build();
+</script>
+</body>
+</html>
